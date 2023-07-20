@@ -73,7 +73,7 @@ class PrometheusConnect:
             self._session.proxies = proxy
         self._session.mount(self.url, HTTPAdapter(max_retries=retry))
 
-    def check_prometheus_connection(self, params: dict = None) -> bool:
+    def check_prometheus_connection(self, params: dict = None, timeout: int = None) -> bool:
         """
         Check Promethus connection.
 
@@ -87,6 +87,7 @@ class PrometheusConnect:
             headers=self.headers,
             params=params,
             auth=self.auth,
+            timeout=timeout,
         )
         return response.ok
 
@@ -105,7 +106,7 @@ class PrometheusConnect:
         self._all_metrics = self.get_label_values(label_name="__name__", params=params)
         return self._all_metrics
 
-    def get_label_values(self, label_name: str, params: dict = None):
+    def get_label_values(self, label_name: str, params: dict = None, timeout: int = None):
         """
         Get a list of all values for the label.
 
@@ -124,6 +125,7 @@ class PrometheusConnect:
             headers=self.headers,
             params=params,
             auth=self.auth,
+            timeout=timeout,
         )
 
         if response.status_code == 200:
@@ -135,7 +137,7 @@ class PrometheusConnect:
         return labels
 
     def get_current_metric_value(
-        self, metric_name: str, label_config: dict = None, params: dict = None
+        self, metric_name: str, label_config: dict = None, params: dict = None, timeout: int = None
     ):
         r"""
         Get the current metric value for the specified metric and label configuration.
@@ -174,6 +176,7 @@ class PrometheusConnect:
             verify=self.ssl_verification,
             headers=self.headers,
             auth=self.auth,
+            timeout=timeout
         )
 
         if response.status_code == 200:
@@ -193,6 +196,7 @@ class PrometheusConnect:
         chunk_size: timedelta = None,
         store_locally: bool = False,
         params: dict = None,
+        timeout: int = None,
     ):
         r"""
         Get the current metric value for the specified metric and label configuration.
@@ -265,6 +269,7 @@ class PrometheusConnect:
                 verify=self.ssl_verification,
                 headers=self.headers,
                 auth=self.auth,
+                timeout=timeout
             )
             if response.status_code == 200:
                 data += response.json()["data"]["result"]
@@ -337,7 +342,7 @@ class PrometheusConnect:
         )
         return object_path
 
-    def custom_query(self, query: str, params: dict = None):
+    def custom_query(self, query: str, params: dict = None, timeout: int = None):
         """
         Send a custom query to a Prometheus Host.
 
@@ -363,6 +368,7 @@ class PrometheusConnect:
             verify=self.ssl_verification,
             headers=self.headers,
             auth=self.auth,
+            timeout=timeout,
         )
         if response.status_code == 200:
             data = response.json()["data"]["result"]
@@ -374,7 +380,7 @@ class PrometheusConnect:
         return data
 
     def custom_query_range(
-        self, query: str, start_time: datetime, end_time: datetime, step: str, params: dict = None
+        self, query: str, start_time: datetime, end_time: datetime, step: str, params: dict = None, timeout: int = None
     ):
         """
         Send a query_range to a Prometheus Host.
@@ -406,6 +412,7 @@ class PrometheusConnect:
             verify=self.ssl_verification,
             headers=self.headers,
             auth=self.auth,
+            timeout=timeout,
         )
         if response.status_code == 200:
             data = response.json()["data"]["result"]
